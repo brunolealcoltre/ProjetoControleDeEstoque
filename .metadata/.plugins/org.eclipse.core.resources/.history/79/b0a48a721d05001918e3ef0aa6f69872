@@ -1,0 +1,86 @@
+package br.com.controleestoque.resource;
+
+import java.net.URI;
+import java.util.List;
+import java.util.Optional;
+
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
+
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import br.com.controleestoque.repository.FabricanteRepository;
+import br.com.controleestoque.repository.filter.FabricanteFilter;
+import br.com.controleestoqueBean.Fabricante;
+@CrossOrigin("http://localhost:4200")
+@RestController
+@RequestMapping(value="/estoque")
+public class FabricanteResource {
+	
+	@Autowired
+	private FabricanteRepository controleEstoqueRepository;
+	
+	
+	//lista todos os fabricantes
+	@GetMapping("/todos")
+	public List<Fabricante> listar(){
+		return controleEstoqueRepository.findAll();
+	}
+	//salva fabricante no banco de dados 
+	@PostMapping
+	public ResponseEntity<Fabricante> criar (@Valid @RequestBody Fabricante controleEstoqueBean,HttpServletResponse response ){
+		Fabricante estoqueSalva = controleEstoqueRepository.save(controleEstoqueBean);
+		
+		URI uri = ServletUriComponentsBuilder.fromCurrentRequestUri().path("/{codigo}")
+				.buildAndExpand(estoqueSalva.getCodigo()).toUri();
+			response.setHeader("Location", uri.toASCIIString());
+			
+			return ResponseEntity.created(uri).body(estoqueSalva);
+	}
+	
+	//busca por descrição
+	@GetMapping
+	public ResponseEntity<Fabricante> buscarPorDescricao(FabricanteFilter controleEstoqueBeanFilter) {
+			Fabricante filtrado = controleEstoqueRepository.filtrar(controleEstoqueBeanFilter);
+			return ResponseEntity.ok(filtrado);
+	}
+	
+	//busca fabricantes por id
+	@GetMapping("/{id}")
+	public Fabricante buscarId(@PathVariable Long codigo) {
+		return controleEstoqueRepository.findById(codigo).get();
+	}
+	
+	//deleta fabricantes
+	@DeleteMapping("/{codigo}")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+	public void remover(@PathVariable("codigo") Long codigo) {
+		controleEstoqueRepository.deleteById(codigo);
+	}
+	//altera fabricantes
+	@PutMapping("/{codigo}")
+	public ResponseEntity<Fabricante>atualizar(@PathVariable Long codigo,@Valid @RequestBody Fabricante controleEstoqueBean){
+		
+		Optional<Fabricante> estoqueSalva = controleEstoqueRepository.findById(codigo);
+		
+		BeanUtils.copyProperties(controleEstoqueBean, estoqueSalva.get(), "codigo");
+		
+		controleEstoqueRepository.save(estoqueSalva.get());
+		
+		return ResponseEntity.ok(estoqueSalva.get());
+	}
+	
+}
