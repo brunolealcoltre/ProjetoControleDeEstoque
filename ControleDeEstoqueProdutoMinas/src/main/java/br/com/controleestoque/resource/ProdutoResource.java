@@ -26,6 +26,7 @@ import br.com.controleestoque.repository.ProdutoRepository;
 import br.com.controleestoque.repository.filter.ProdutoFilter;
 import br.com.controleestoque.repository.filter.ProdutoQuatidadeFilter;
 import br.com.controleestoqueBean.Produto;
+import io.swagger.annotations.ApiOperation;
 @CrossOrigin("http://localhost:4200")
 @RestController
 @RequestMapping("/produtos")
@@ -37,23 +38,26 @@ public class ProdutoResource {
 	@Autowired
 	private ProdutoRepository produtoRepository;
 
+	@ApiOperation(value = "Lista todos produtos")
 	@GetMapping("/todos")
 	public List<Produto> listar() {
 		return produtoRepository.findAll();
 	}
 
+	@ApiOperation(value = "Salva produto")
 	@PostMapping
 	@ResponseStatus(HttpStatus.CREATED)
 	public void criar(@RequestBody @Valid Produto produto) {
 		produtoRepository.save(produto);
 	}
 
+	@ApiOperation(value = "Deleta produto")
 	@DeleteMapping("/{codigo}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void remover(@PathVariable("codigo")Long codigo) {
 		produtoRepository.deleteById(codigo);
 	}
-	
+	@ApiOperation(value = "Altera produto")
 	@PutMapping("/{codigo}")
 	public ResponseEntity<Produto>atualizar(@PathVariable Long codigo,@Valid @RequestBody Produto produto ){
 		
@@ -68,6 +72,7 @@ public class ProdutoResource {
 	}
 	
 	//avaliar o metodo filtrar
+	@ApiOperation(value = "Filtra produto")
 	@GetMapping
 	public ResponseEntity<Produto> buscarPorDescricao(ProdutoFilter produtoFilter){
 		Produto filtrado = produtoRepository.filtrar(produtoFilter);
@@ -75,7 +80,7 @@ public class ProdutoResource {
 	}
 
 
-	
+	@ApiOperation(value = "Baixa no estoque")
 	@PutMapping("/{codigo}/quantidade")
 	public ResponseEntity<?> baixaEstoque(
 			@PathVariable("codigo") Long codigo, @RequestBody Long quantidade

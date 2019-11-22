@@ -25,6 +25,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import br.com.controleestoque.repository.FabricanteRepository;
 import br.com.controleestoque.repository.filter.FabricanteFilter;
 import br.com.controleestoqueBean.Fabricante;
+import io.swagger.annotations.ApiOperation;
 @CrossOrigin("*")
 @RestController
 @RequestMapping(value="/estoque")
@@ -34,12 +35,12 @@ public class FabricanteResource {
 	private FabricanteRepository controleEstoqueRepository;
 	
 	
-	//lista todos os fabricantes
+	@ApiOperation(value = "Listar todos os Fabricantes")
 	@GetMapping("/todos")
 	public List<Fabricante> listar(){
 		return controleEstoqueRepository.findAll();
 	}
-	//salva fabricante no banco de dados 
+	@ApiOperation(value = "Salva Fabricantes")
 	@PostMapping
 	public ResponseEntity<Fabricante> criar (@Valid @RequestBody Fabricante controleEstoqueBean,HttpServletResponse response ){
 		Fabricante estoqueSalva = controleEstoqueRepository.save(controleEstoqueBean);
@@ -51,26 +52,26 @@ public class FabricanteResource {
 			return ResponseEntity.created(uri).body(estoqueSalva);
 	}
 	
-	//busca por descrição
+	@ApiOperation(value = "Busca Fabricante por descrição")
 	@GetMapping
 	public ResponseEntity<Fabricante> buscarPorDescricao(FabricanteFilter controleEstoqueBeanFilter) {
 			Fabricante filtrado = controleEstoqueRepository.filtrar(controleEstoqueBeanFilter);
 			return ResponseEntity.ok(filtrado);
 	}
 	
-	//busca fabricantes por id
+	@ApiOperation(value = "Busca Fabricante por id")
 	@GetMapping("/{codigo}")
 	public Fabricante buscarId(@PathVariable Long codigo) {
 		return controleEstoqueRepository.findById(codigo).get();
 	}
 	
-	//deleta fabricantes
+	@ApiOperation(value = "Deleta Fabricante")
 	@DeleteMapping("/{codigo}")
 	@ResponseStatus(HttpStatus.NO_CONTENT)
 	public void remover(@PathVariable("codigo") Long codigo) {
 		controleEstoqueRepository.deleteById(codigo);
 	}
-	//altera fabricantes
+	@ApiOperation(value = "Altera Fabricante")
 	@PutMapping("/{codigo}")
 	public ResponseEntity<Fabricante>atualizar(@PathVariable Long codigo,@Valid @RequestBody Fabricante controleEstoqueBean){
 		
